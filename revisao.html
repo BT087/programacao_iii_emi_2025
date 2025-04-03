@@ -1,0 +1,96 @@
+<!-- defina um documento html 
+
+    No documento, inclua cabeçalho, corpo e rodapé,
+    No cabeçalho, definir um título para a pagina.
+    No corpo da pagina, inclua um paragrafo com o texto:
+    Hello Word !!!
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Minha Página</title>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <style>
+        .caixa {
+            border-style: solid;
+            border-width: 1px;
+            margin: 10px;
+            padding: 10px;
+        }
+
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center;">Cadastro de carros</h1>
+
+    <!-- Primeira caixa -->
+    <div style="width: 71%; margin: 5px;" class="caixa">
+        Codigo: <input type="number" name="" id="camp_cod"><br>
+        Modelo: <input type="text" value=""><br>
+        Fabricante: <select name="carros" id="carros">
+            <option value="volvo">VW</option>
+            <option value="saab">Ford</option>
+            <option value="audi" selected>Audi</option>
+            </select>
+           
+    </div>
+
+    <!-- Segunda caixa -->
+    <div style="float: left; width: 35%; margin: 5px; "class="caixa">
+        <label for="">Status do veiculo</label>
+    <div class="radio">  
+        <input type="radio" name="estado" id="novo" value="novo">
+        <label for="novo">Novo</label>
+
+            <input type="radio" name="estado" id="usado" value="usado">
+        <label for="Usado">Usado</label>
+    </div> 
+        Valor: <input type="number" name="" id=""><br>
+        Data: <input type="date" name="" id="">
+    </div>
+
+    <!-- Terceira caixa -->
+    <div style="float: left; width: 35%; margin: 5px; " class="caixa">
+        <label for="observacao">Observações:</label><br>
+        <textarea name="observacao" id="observacao" rows="4" cols="50"></textarea><br>
+        <button id="btnCadastrar">cadastrar</button> <button id="btnExcluir">excluir</button>
+    </div>
+    <div class="centro">
+        <table id="TabelaVeiculos" border="1">
+            <tr>
+                <th scope="col">Codigo</th>
+                <th scope="col">Modelo</th>
+                <th scope="col">Data</th>
+                <th scope="col">Valor</th>
+            </tr>
+            <body id="corpoTabela">
+                
+            </tbody>
+
+        </table>
+        
+    </div>
+
+</body>
+<script type="text/javascript">
+
+    $("#btnCadastrar").click(function(){
+        alert("criou o cadastro!!");
+        var campo_codigo = document.getElementById("camp_cod");
+        if(isNaN(campo_codigo)){
+            alert("O codigo não tem nenhum valor valido, por favor coloque um numero valido")
+        }
+        if(camp_cod > 0 && camp_cod <= 10){
+            alert("codigo valico"+ campo_codigo);
+        }
+        else{
+            alert("O codigo deve estar no meio de 1 e 10");
+        }
+    });
+    $("#btnExcluir").click(function(){
+        alert("excluiu o cadastro!!");
+    });
+</script>
+
+</html>

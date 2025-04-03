@@ -1,0 +1,208 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Vue - Cadastro de Pets</title>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
+    <script src="https://unpkg.com/vuelidate@0.7.4/dist/vuelidate.min.js"></script>
+    <script src="https://unpkg.com/vuelidate@0.7.4/dist/validators.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+</head>
+
+<body>
+    <div id="app" class="container">
+        <h2>Cadastro de Pets</h2>
+
+        <table class="table table-striped">
+            <tr>
+                <th>#</th>
+                <th>Nome</th>
+                <th>Data de Nascimento</th>
+                <th>Raça</th>
+                <th>CPF do Tutor</th>
+                <th>Vacinas</th>
+                <th>Valor</th>
+                <th>Alterar</th>
+                <th>Remover</th>
+            </tr>
+            <tbody>
+                <tr v-for="(p, index) in pets" :key="index">
+                    <td>{{ index }}</td>
+                    <td>{{ p.nome }}</td>
+                    <td>{{ p.data_nascimento }}</td>
+                    <td>{{ p.raca }}</td>
+                    <td>{{ p.cpf_tutor }}</td>
+                    <td>{{ p.vacinado ? 'Sim' : 'Não' }}</td>
+                    <td>{{ p.valor }}</td>
+                    <td><button v-on:click="editPet(index)" class="btn btn-warning">Alterar</button></td>
+                    <td><button v-on:click="remPet(index)" class="btn btn-danger">Remover</button></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <form>
+            <h3>Cadastro de Novo Pet</h3>
+
+            <div class="form-group">
+                <label>Nome:</label>
+                <input type="text" v-model.trim="$v.novo_pet.nome.$model" :class="status($v.novo_pet.nome)" class="form-control">
+                <div v-if="!$v.novo_pet.nome.required || !$v.novo_pet.nome.minLength || !$v.novo_pet.nome.maxLength" class="text-danger">
+                    O nome deve ter entre 4 e 12 caracteres.
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Data de Nascimento:</label>
+                <input type="date" v-model="$v.novo_pet.data_nascimento.$model" :class="status($v.novo_pet.data_nascimento)" class="form-control">
+                <div v-if="!$v.novo_pet.data_nascimento.required || !$v.novo_pet.data_nascimento.pastDate" class="text-danger">
+                    A data deve ser menor que a data atual.
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Raça:</label>
+                <select v-model="$v.novo_pet.raca.$model" :class="status($v.novo_pet.raca)" class="form-control">
+                    <option disabled value="">Selecione uma raça</option>
+                    <option>Poodle</option>
+                    <option>Pastor Alemão</option>
+                    <option>Labrador</option>
+                </select>
+                <div v-if="!$v.novo_pet.raca.required" class="text-danger">Selecione uma raça.</div>
+            </div>
+
+            <div class="form-group">
+                <label>CPF do Tutor:</label>
+                <input type="text" v-model.trim="$v.novo_pet.cpf_tutor.$model" :class="status($v.novo_pet.cpf_tutor)" class="form-control">
+                <div v-if="!$v.novo_pet.cpf_tutor.required || !$v.novo_pet.cpf_tutor.numeric || !$v.novo_pet.cpf_tutor.exactLength" class="text-danger">
+                    O CPF deve conter exatamente 11 números.
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Vacinado:</label>
+                <input type="checkbox" v-model="novo_pet.vacinado">
+            </div>
+
+            <div class="form-group">
+                <label>Valor:</label>
+                <input type="number" v-model="$v.novo_pet.valor.$model" :class="status($v.novo_pet.valor)" class="form-control">
+                <div v-if="!$v.novo_pet.valor.required || !$v.novo_pet.valor.minValue" class="text-danger">
+                    O valor deve ser maior que 100.
+                </div>
+            </div>
+
+            <button @click="addPet($v)" class="btn btn-success" type="button">Salvar</button>
+            <button @click="cleanFormulario" class="btn btn-secondary" type="button">Limpar</button>
+        </form>
+    </div>
+</body>
+
+<script>
+    Vue.use(window.vuelidate.default);
+    const {
+        required,
+        minLength,
+        maxLength,
+        numeric,
+        minValue
+    } = window.validators;
+
+    new Vue({
+        el: '#app',
+        data: {
+            pets: [],
+            novo_pet: {
+                nome: '',
+                data_nascimento: '',
+                raca: '',
+                cpf_tutor: '',
+                vacinado: false,
+                valor: ''
+            }
+        },
+        validations: {
+            novo_pet: {
+                nome: {
+                    required,
+                    minLength: minLength(4),
+                    maxLength: maxLength(12)
+                },
+                data_nascimento: {
+                    required,
+                    pastDate: value => value < new Date().toISOString().split('T')[0]
+                },
+                raca: {
+                    required
+                },
+                cpf_tutor: {
+                    required,
+                    numeric,
+                    exactLength: value => value.length === 11
+                },
+                valor: {
+                    required,
+                    minValue: minValue(101)
+                }
+            }
+        },
+        methods: {
+            status(validation) {
+                return {
+                    'is-invalid': validation.$error
+                };
+            },
+            addPet(v) {
+                if (!v.$invalid) {
+                    if (this.novo_pet.index !== undefined) { // Verifica se está editando um pet
+                        this.pets.splice(this.novo_pet.index, 1, {...this.novo_pet
+                        }); // Atualiza o pet
+                        alert('Pet alterado com sucesso!');
+                    } else {
+                        this.pets.push({...this.novo_pet
+                        });
+                        alert('Pet cadastrado com sucesso!');
+                    }
+                    this.savePetsToLocalStorage();
+                    this.cleanFormulario();
+                } else {
+                    alert('Preencha todos os campos corretamente!');
+                }
+            },
+            editPet(index) {
+                this.novo_pet = {...this.pets[index]
+                }; // Preenche o formulário com os dados do pet selecionado
+                this.novo_pet.index = index; // Salva o índice do pet para atualização posterior
+            },
+            remPet(index) {
+                this.pets.splice(index, 1); // Remove o pet
+                this.savePetsToLocalStorage(); // Atualiza o localStorage após remoção
+            },
+            cleanFormulario() {
+                this.novo_pet = {
+                    nome: '',
+                    data_nascimento: '',
+                    raca: '',
+                    cpf_tutor: '',
+                    vacinado: false,
+                    valor: ''
+                };
+            },
+            savePetsToLocalStorage() {
+                localStorage.setItem('pets', JSON.stringify(this.pets));
+            },
+            loadPetsFromLocalStorage() {
+                const pets = localStorage.getItem('pets');
+                if (pets) {
+                    this.pets = JSON.parse(pets);
+                }
+            }
+        },
+        mounted() {
+            this.loadPetsFromLocalStorage(); // Carrega os dados do localStorage quando o componente é montado
+        }
+    });
+</script>
+
+</html>
